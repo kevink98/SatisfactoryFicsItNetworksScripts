@@ -1,31 +1,36 @@
-local identifier = "W_Schrauben_1"
-local name = "Wueste Schrauben 1"
+local identifier = "W_DrahtKabel_1"
+local name = "Wueste Draht/Kabel 1"
 
-local typ_1 = "Schrauben"
-local typ_2 = ""
+local typ_1 = "Draht"
+local typ_2 = "Kabel"
 local typ_3 = ""
 
 local itemsPerStack_1 = 500
-local itemsPerStack_2 = 0
+local itemsPerStack_2 = 100
 local itemsPerStack_3 = 0
 
-local partsPerMinute_1 = 40
-local partsPerMinute_2 = 0
+local partsPerMinute_1 = 30
+local partsPerMinute_2 = 30
 local partsPerMinute_3 = 0
 
-local numStorages_1 = 5
-local numStorages_2 = 0
+local numStorages_1 = 1
+local numStorages_2 = 1
 local numStorages_3 = 0
 
-local numProductions_1 = 16
-local numProductions_2 = 0
+local numProductions_1 = 4
+local numProductions_2 = 2
 local numProductions_3 = 0
 ---------------------------------------------------------------------------------------------------
 
 local gpu = computer.getGPUs()[1]
 local screen = component.proxy(component.findComponent(identifier .. "_Screen")[1])
 --local network = component.proxy(component.findComponent(identifier .. "_Network")[1])
-local power1, power2, power3
+local power, power1, power2, power3
+
+local compPower = component.findComponent(identifier .. "_Power")
+if #compPower > 0 then
+ power = component.proxy(compPower[1])
+end
 
 local compPower1 = component.findComponent(identifier .. "_Power1")
 if #compPower1 > 0 then
@@ -80,37 +85,40 @@ function updateDisplay()
  gpu:fill(0,0,w,h," ")
  gpu:setForeground(1,1,1,1)
 
- gpu:setText(0, 1, name)
+ gpu:setText(2, 1, name)
  gpu:setText(5, 3,"Container:")
 
- local yPos = 7
+    local yPos = 5
 
- if typ_1 ~= "" then
-  gpu:setText(5, 5,typ_1)
-  for i=1, numStorages_1 do
-   local storage = storages_1[i]
-   gpu:setText(10, yPos,"Container " .. i .. ": " .. storage:getInventories()[1].itemCount .. " / " .. storage:getInventories()[1].size * itemsPerStack_1 .. " Stueck")
-   yPos = yPos + 2
-  end 
- end
+    if typ_1 ~= "" then
+        gpu:setText(8, yPos, typ_1)
+        yPos = yPos + 2
+        for i=1, numStorages_1 do
+            local storage = storages_1[i]
+            gpu:setText(10, yPos,"Container " .. i .. ": " .. storage:getInventories()[1].itemCount .. " / " .. storage:getInventories()[1].size * itemsPerStack_1 .. " Stueck")
+            yPos = yPos + 2
+        end 
+    end
 
- if typ_2 ~= "" then
-  gpu:setText(5, 5,typ_2)
-  for i=1, numStorages_2 do
-   local storage = storages_2[i]
-   gpu:setText(10, yPos,"Container " .. i .. ": " .. storage:getInventories()[1].itemCount .. " / " .. storage:getInventories()[1].size * itemsPerStack_2 .. " Stueck")
-   yPos = yPos + 2
-  end 
- end
+    if typ_2 ~= "" then
+        gpu:setText(8, yPos, typ_2)
+        yPos = yPos + 2
+        for i=1, numStorages_2 do
+            local storage = storages_2[i]
+            gpu:setText(10, yPos,"Container " .. i .. ": " .. storage:getInventories()[1].itemCount .. " / " .. storage:getInventories()[1].size * itemsPerStack_2 .. " Stueck")
+            yPos = yPos + 2
+        end 
+    end
 
- if typ_3 ~= "" then
-  gpu:setText(5, 5,typ_3)
-  for i=1, numStorages_3 do
-   local storage = storages_31[i]
-   gpu:setText(10, yPos,"Container " .. i .. ": " .. storage:getInventories()[1].itemCount .. " / " .. storage:getInventories()[1].size * itemsPerStack_3 .. " Stueck")
-   yPos = yPos + 2
-  end 
- end
+    if typ_3 ~= "" then
+        gpu:setText(8, yPos, typ_3)
+        yPos = yPos + 2
+        for i=1, numStorages_3 do
+            local storage = storages_3[i]
+            gpu:setText(10, yPos,"Container " .. i .. ": " .. storage:getInventories()[1].itemCount .. " / " .. storage:getInventories()[1].size * itemsPerStack_3 .. " Stueck")
+            yPos = yPos + 2
+        end 
+    end
 
     if numProductions_1 > 0 then
         local productivity_1 = 0
@@ -138,9 +146,10 @@ function updateDisplay()
             sumPartsPerMinute_2 = sumPartsPerMinute_2 + partsPerMinute_2 * prods_2[i].productivity 
         end
         productivity_2 = productivity_2 / numProductions_2
-        gpu:setText(60, 11,"Produktivitaet " .. typ_2 .. ": " .. productivity_2 * 100 .. " %")
-        gpu:setText(60, 13,"Teileproduktion: " .. typ_2 .. ": " .. sumPartsPerMinute_2 .. " Teile / Minute")
-        gpu:setText(60, 15,"Stromverbrauch " .. typ_2 .. ": " .. powerConsum_2 .. " MW")
+        gpu:setText(60, 13, typ_2)
+        gpu:setText(65, 15, string.format("Produktivitaet: %.2f %%", productivity_2 * 100))
+        gpu:setText(65, 17, string.format("Teileproduktion: %.2f Teile / Minute", sumPartsPerMinute_2))
+        gpu:setText(65, 19, string.format("Stromverbrauch: %.2f MW", powerConsum_2))
     end
 
     if numProductions_3 > 0 then
@@ -153,17 +162,31 @@ function updateDisplay()
             sumPartsPerMinute_3 = sumPartsPerMinute_3 + partsPerMinute_3 * prods_3[i].productivity 
         end
         productivity_3 = productivity_3 / numProductions_3
-        gpu:setText(60, 19,"Produktivitaet " .. typ_3 .. ": " .. productivity_3 * 100 .. " %")
-        gpu:setText(60, 21,"Teileproduktion: " .. typ_3 .. ": " .. sumPartsPerMinute_3 .. " Teile / Minute")
-        gpu:setText(60, 23,"Stromverbrauch " .. typ_3 .. ": " .. powerConsum_3 .. " MW")
+        gpu:setText(60, 23, typ_3)
+        gpu:setText(65, 25, string.format("Produktivitaet: %.2f %%", productivity_3 * 100))
+        gpu:setText(65, 27, string.format("Teileproduktion: %.2f Teile / Minute", sumPartsPerMinute_3))
+        gpu:setText(65, 29, string.format("Stromverbrauch: %.2f MW", powerConsum_3))
     end
 
     gpu:flush()
 end
 
-power1:setConnected(true)
+if power ~= nil then
+    power:setConnected(true)
+end
+if power1 ~= nil then
+    power1:setConnected(true)
+end
+
+if power2 ~= nil then
+    power2:setConnected(true)
+end
+
+if power3 ~= nil then
+    power3:setConnected(true)
+end
 
 while true do
- updateDisplay()
- event.pull(0.05)
+    updateDisplay()
+    event.pull(0.05)
 end
