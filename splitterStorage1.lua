@@ -69,6 +69,7 @@ function checkTime_run()
     while true do
         sleep()
         local currentSeconds = computer.millis()        
+
         if nextMinute == nil or nextMinute <= currentSeconds then
             counter_s1 = 0
             counter_s2 = 0
@@ -81,7 +82,7 @@ end
 function splitter1_run()
     while true do
         sleep()        
-        while splitter1:getInput() do
+        if splitter1:getInput() then
             counter_s1 = transfer(splitter1, counter_s1, limit_s1)
         end
     end
@@ -90,7 +91,7 @@ end
 function splitter2_run()
     while true do
         sleep()
-        while splitter2:getInput() do
+        if splitter2:getInput() then
             counter_s2 = transfer(splitter2, counter_s2, limit_s2)
         end
     end
@@ -99,7 +100,7 @@ end
 function splitter3_run()
     while true do
         sleep()
-        while splitter3:getInput() do
+        if splitter3:getInput() then
             counter_s3 = transfer(splitter3, counter_s3, limit_s3)
         end
     end
